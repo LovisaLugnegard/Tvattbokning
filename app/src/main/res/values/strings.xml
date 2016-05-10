@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Tvattbokning</string>
+    <string name="hint_username">Användarnamn</string>
+    <string name="hint_password">Lösenord</string>
+    <string name="button_login_text">Logga in</string>
+    <string name="button_forgot_password_text">Glömt lösenord</string>
+    <string name="title_activity_dashboard">dashboard</string>
+    <string name="availableTimes_button_text">Lediga tider</string>
+    <string name="myReservations_button_text">Mina bokningar</string>
+    <string name="button_logout_text">Logga ut</string>
+</resources>
