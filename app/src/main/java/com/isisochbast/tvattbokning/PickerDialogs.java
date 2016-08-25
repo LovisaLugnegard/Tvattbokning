@@ -6,16 +6,15 @@ package com.isisochbast.tvattbokning;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 import java.util.Calendar;
 
-/**
- * Created by Lovisa on 2016-05-04.
- */
 public class PickerDialogs extends DialogFragment {
+    @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle onSavedInstanceState){
+    public Dialog onCreateDialog(Bundle onSavedInstanceState) {
 
         DateSettings dateSettings = new DateSettings(getActivity());
         Calendar calendar = Calendar.getInstance();

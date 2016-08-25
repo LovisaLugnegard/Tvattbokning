@@ -14,39 +14,27 @@ import android.widget.Toast;
 
 import com.kinvey.android.Client;
 
-public class DashboardFragment extends Fragment {
-    private Button mAvailableTimes;
-    private Button mMyReservations;
-    private Button mSignOut;
-    private final String TAG = "test";
+public class DashboardFragment extends KinveyFragment {
 
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
+                             Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
 
-        Log.i(TAG,"DashboardFragment");
+        Log.i(TAG, "DashboardFragment");
 
-        //Behövs för att logga ut
-        final Client mKinveyClient = new Client.Builder(this.getContext()).build();
 
         //Aktivera knapparna
-        mAvailableTimes = (Button) v.findViewById(R.id.availableTimes);
-        mSignOut =(Button) v.findViewById(R.id.signOut);
-        mMyReservations = (Button) v.findViewById(R.id.myReservations);
+        Button availableTimes = (Button) v.findViewById(R.id.availableTimes);
+        Button signOut = (Button) v.findViewById(R.id.signOut);
+        Button myReservations = (Button) v.findViewById(R.id.myReservations);
         //Kommer till lediga tider
-        mAvailableTimes.setOnClickListener(new View.OnClickListener(){
+        availableTimes.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
+
                 PickerDialogs pickerDialogs = new PickerDialogs();
                 pickerDialogs.show(getFragmentManager(), "date_picker");
 
@@ -60,13 +48,22 @@ public class DashboardFragment extends Fragment {
             }
         });
 
+        myReservations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(DashboardFragment.this.getContext(), MinaTvattiderActivity.class);
+                startActivity(i);
+            }
+
+        });
+
 
         //Logga ut, blir tillbakaskickad till startsidan
-        mSignOut.setOnClickListener(new View.OnClickListener(){
+        signOut.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
 
-                mKinveyClient.user().logout().execute();
+                getClient().user().logout().execute();
                 Toast.makeText(getContext(), "Du har loggats ut", Toast.LENGTH_LONG).show();
                 Intent i = new Intent(DashboardFragment.this.getContext(), StartActivity.class);
                 startActivity(i);

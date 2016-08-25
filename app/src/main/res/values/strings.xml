@@ -8,4 +8,6 @@
     <string name="availableTimes_button_text">Lediga tider</string>
     <string name="myReservations_button_text">Mina bokningar</string>
     <string name="button_logout_text">Logga ut</string>
+    <string name="avboka_button">Avboka</string>
+    <string name="inga_bokningar_text">Du har inga bokade tider</string>
 </resources>

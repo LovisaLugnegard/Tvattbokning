@@ -9,13 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+//DENNA AKTIVITET ANVÄNDS INTE JUST NU, ISTÄLLET ÄR DET EN DATEDIALOGGREJ I DASHBOARD - ta bort detta om detta ändras:)
 
 
 
-/**
- * Created by Lovisa on 2016-05-04.
- */
-public class AvailableTimesFragment extends Fragment {
+/*public class AvailableTimesFragment extends Fragment {
     final String TAG = "test";
 
     @Override
@@ -37,4 +35,4 @@ public class AvailableTimesFragment extends Fragment {
 
         return v;
     }
-}
+}*/

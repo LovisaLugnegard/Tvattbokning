@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Här hålls listan med alla tvättider en användare har bokat -->
+
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:id="@+id/textView_inga_bokningar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/inga_bokningar_text"/>
+    
+<android.support.v7.widget.RecyclerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mina_tvattider_recycler_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+/>
+
+
+</LinearLayout>
+
+
