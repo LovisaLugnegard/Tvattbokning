@@ -5,7 +5,7 @@ package com.isisochbast.tvattbokning;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,52 +13,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.kinvey.android.Client;
 import com.kinvey.android.callback.KinveyUserCallback;
+import com.kinvey.android.callback.KinveyUserManagementCallback;
 import com.kinvey.java.User;
 
+public class StartFragment extends KinveyFragment implements View.OnClickListener {
 
-public class StartFragment extends KinveyFragment {
-
-    private EditText mEditUserName;
-    private EditText mEditPassword;
-
+    private EditText mEditTextUserName;
+    private EditText mEditTextPassword;
+    Client client = getClient();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "SF onCreate");
-
-    }
-
-    //on* är för att se vad som händer, ta bort dem senare!
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(TAG, "SF onStart called");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(TAG, "SF onPause called");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "SF onResume called");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "SF onStop called");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "SF onDestroy called");
     }
 
     @Override
@@ -66,60 +34,60 @@ public class StartFragment extends KinveyFragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_start, container, false);
 
-        //Lite oklart hur denna rad funkar men den behövs, annars kraschar appen
-        //  ((TvattbokningApp) getActivity().getApplicationContext()).getClient();
+        Button buttonLogin = (Button) v.findViewById(R.id.button_login);
+        Button buttonNewPassword = (Button) v.findViewById(R.id.button_forgot_password);
+        mEditTextUserName = (EditText) v.findViewById(R.id.username);
+        mEditTextPassword = (EditText) v.findViewById(R.id.password);
 
-
-        Log.i(TAG, "SF onCreateView");
-        Button loginButton = (Button) v.findViewById(R.id.button_login);
-        Button forgotPasswordButton = (Button) v.findViewById(R.id.button_forgot_password);
-       // Button logoutButton = (Button) v.findViewById(R.id.button_logout);
-        mEditUserName = (EditText) v.findViewById(R.id.username);
-        mEditPassword = (EditText) v.findViewById(R.id.password);
-
-
-
-
-        //Klicka på logga in, loggar in i kinvey, om det är rätt lösenord; till översikt av konto(dashboard), om fel lösenord; toast
-        loginButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                getClient().user().login(mEditUserName.getText().toString(), mEditPassword.getText().toString(), new KinveyUserCallback() {
-
+        //Klicka på logga in, loggar in i kinvey, om det är rätt lösenord; till översikt av konto(dashboard),
+        // om fel lösenord; toast
+        buttonLogin.setOnClickListener(v1 -> getClient().user().login(mEditTextUserName.getText().toString(),
+                mEditTextPassword.getText().toString(), new KinveyUserCallback() {
 
                     @Override
                     public void onFailure(Throwable t) {
-
-                        CharSequence text = "Wrong username or password.";
-                        Toast.makeText(StartFragment.this.getActivity(), text, Toast.LENGTH_LONG).show();
+                        CharSequence text = getString(R.string.wrong_username_PW);
+                        Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onSuccess(User u) {
-                        CharSequence text = "Welcome back," + u.getUsername() + ".";
-                        Toast.makeText(StartFragment.this.getActivity(), text, Toast.LENGTH_LONG).show();
-                        Intent i = new Intent(StartFragment.this.getActivity(), DashboardActivity.class);
+                        CharSequence text = "Välkommen " + u.getUsername() + ".";
+                        Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
+                        Intent i = new Intent(getContext(), DashboardActivity.class);
                         startActivity(i);
-
                     }
-                });
-
-            }
-
-        });
-
-       /* logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getClient().user().logout().execute();
-                Log.d(TAG, "SF log out");
-            }
-
-        });*/
-
+                }));
+        buttonNewPassword.setOnClickListener(this);
         return v;
     }
 
+    @Override
+    public void onClick(View view) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialogBuilder.setMessage(R.string.alert_DB_new_PW);
+        alertDialogBuilder.setPositiveButton(R.string.yes, (arg0, arg1) -> resetPW());
+
+        alertDialogBuilder.setNegativeButton(R.string.no, (dialog, which) -> {
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    public void resetPW() {
+        client.user().resetPassword(mEditTextUserName.getText().toString(), new KinveyUserManagementCallback() {
+
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getContext(), R.string.new_PW_sent, Toast.LENGTH_LONG).show();
+            }
+
+            public void onFailure(Throwable e) {
+                Toast.makeText(getContext(), R.string.no_user_name, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 }
+
+

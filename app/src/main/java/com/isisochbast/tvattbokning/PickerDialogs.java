@@ -16,16 +16,12 @@ public class PickerDialogs extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle onSavedInstanceState) {
 
-        DateSettings dateSettings = new DateSettings(getActivity());
+       // DateSettings dateSettings = new DateSettings(getActivity());
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        DatePickerDialog dialog;
+        return new DatePickerDialog(getActivity(), (DatePickerDialog.OnDateSetListener) getActivity(), year, month, day);
 
-        dialog = new DatePickerDialog(getContext(), dateSettings, year, month, day);
-
-
-        return dialog;
     }
 }

@@ -1,13 +1,25 @@
 <resources>
-    <string name="app_name">Tvattbokning</string>
+    <string name="app_name">Tvättbokning</string>
     <string name="hint_username">Användarnamn</string>
     <string name="hint_password">Lösenord</string>
     <string name="button_login_text">Logga in</string>
     <string name="button_forgot_password_text">Glömt lösenord</string>
-    <string name="title_activity_dashboard">dashboard</string>
-    <string name="availableTimes_button_text">Lediga tider</string>
-    <string name="myReservations_button_text">Mina bokningar</string>
+    <string name="button_availableTimes_text">Lediga tider</string>
+    <string name="button_my_reservations_text">Mina bokningar</string>
     <string name="button_logout_text">Logga ut</string>
-    <string name="avboka_button">Avboka</string>
-    <string name="inga_bokningar_text">Du har inga bokade tider</string>
+    <string name="button_avboka">Avboka</string>
+    <string name="noConnectionString">Appen kräver internetanslutning</string>
+    <string name="inga_bokade_tider">Du har inga bokade tvättider.</string>
+    <string name="boka">Boka</string>
+    <string name="action_settings">Settings</string>
+    <string name="text_view_dina_bokade_tt">Dina bokade tvättider</string>
+    <string name="progressBar_laddar">Laddar lediga tvättider</string>
+    <string name="button_byt_datum">Byt datum</string>
+    <string name="progressBar_laddar_dina">Laddar dina tvättider.</string>
+    <string name="alert_DB_new_PW">Vill du hämta ett nytt lösenord?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nej</string>
+    <string name="new_PW_sent">Ett nytt lösenord har skickats.</string>
+    <string name="no_user_name">Användarnamnet kunde inte hittas.</string>
+    <string name="wrong_username_PW">Fel användarnamn eller lösenord</string>
 </resources>

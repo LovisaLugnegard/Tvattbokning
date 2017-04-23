@@ -4,13 +4,12 @@ package com.isisochbast.tvattbokning;
  denna aktivitet håller i fragmentet som sköter detta, fragment hämtas mha den abstrakta klassen SingleFragmentActivity*/
 
 
-
 import android.support.v4.app.Fragment;
 
-public class DashboardActivity extends SingleFragmentActivity{
+public class DashboardActivity extends SingleFragmentActivity {
 
     @Override
-    protected Fragment createFragment(){
+    protected Fragment createFragment() {
         return new DashboardFragment();
     }
 }

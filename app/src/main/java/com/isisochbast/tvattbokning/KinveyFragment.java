@@ -3,7 +3,6 @@ package com.isisochbast.tvattbokning;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import com.kinvey.android.Client;
 
@@ -13,19 +12,18 @@ import com.kinvey.android.Client;
  */
 public abstract class KinveyFragment extends Fragment {
 
-
-
     final static String TAG = "test";
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState){
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
-    public Client getClient(){
+    public Client getClient() {
         return TvattbokningApp.getClient();
     }
 
-    public String getUser(){
+    public String getUser() {
         return TvattbokningApp.getUserId();
     }
 }

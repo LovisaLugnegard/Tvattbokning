@@ -6,14 +6,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        android:name=".TvattbokningApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".TvattbokningApp">
-
-
+        android:supportsRtl="true">
         <activity android:name=".DashboardActivity">
         </activity>
         <activity android:name=".MinaTvattiderActivity">
@@ -32,6 +30,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".AvailableTimesActivity">
         </activity>
     </application>
 

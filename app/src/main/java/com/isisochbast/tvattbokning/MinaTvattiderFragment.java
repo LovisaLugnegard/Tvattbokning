@@ -1,9 +1,10 @@
 package com.isisochbast.tvattbokning;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.isisochbast.tvattbokning.Model.Tvattid;
 import com.kinvey.android.AsyncAppData;
@@ -23,9 +23,16 @@ import com.kinvey.android.callback.KinveyListCallback;
 import com.kinvey.java.Query;
 import com.kinvey.java.model.KinveyDeleteResponse;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.function.Predicate;
+
 
 /**
  * Ett fargment för att hålla alla användarens bokade tvättider
@@ -33,6 +40,25 @@ import java.util.List;
  * För att göra detta används RecyclerView, då behöver vi inte skapa nya textViews till varje bokning, utan kan återanvända de som visas på skärmen
  */
 public class MinaTvattiderFragment extends KinveyFragment {
+
+    static Calendar cal = Calendar.getInstance();
+    static SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMM dd, yyyy", Locale.getDefault());
+
+    private static final Predicate<Tvattid> isBefore = x -> {
+        if (x.getDate() == null) {
+            return false;
+        } else {
+            try {
+                cal.setTime(sdf.parse(x.getDate()));
+                Calendar c = Calendar.getInstance();
+                c.add(Calendar.DAY_OF_WEEK, -1);
+                return cal.before(c);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    };
 
     private RecyclerView mMinaTvattiderRecyclerView;
     private TvattidAdapter mAdapter;
@@ -42,87 +68,69 @@ public class MinaTvattiderFragment extends KinveyFragment {
     private boolean laddad = false;
     private TextView mIngaBokadeTextView;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         mProgressBar = new ProgressDialog(getContext());
-
-        Log.d(TAG, "i MinaTvattiderFragment");
+        mProgressBar.setIndeterminate(true);
+        mProgressBar.setTitle(getString(R.string.progressBar_laddar_dina));
+        mProgressBar.show();
         View view = inflater.inflate(R.layout.fragment_mina_tvattider_list, container, false);
-        mMinaTvattiderRecyclerView = (RecyclerView) view.findViewById(R.id.mina_tvattider_recycler_view);
-
+        mMinaTvattiderRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView_tvattider);
+        Button mBytaDatumButton = (Button) view.findViewById(R.id.button_byt_datum);
+        mBytaDatumButton.setVisibility(View.INVISIBLE);
 
         /*Behöver LayoutManager för att positionera på skärmen och bestämma hur skrollning ska ske,
-        RecyclerView behöver LayouManager för att inte krascha*/
+        RecyclerView behöver LayoutManager för att inte krascha*/
         mMinaTvattiderRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mIngaBokadeTextView = (TextView) view.findViewById(R.id.textView_inga_bokningar);
+        TextView titleTextView = (TextView) view.findViewById(R.id.textView_title);
+        titleTextView.setText(R.string.text_view_dina_bokade_tt);
+        mIngaBokadeTextView = (TextView) view.findViewById(R.id.textView_tvattider_list);
         mIngaBokadeTextView.setVisibility(View.GONE);
         mTvattider = new ArrayList<>();
         mMinaTvattider = new ArrayList<>();
 
-        blablabla();
+        getMinaTvattider();
         updateUI();
         return view;
     }
 
-
-    public void blablabla() {
+    private void getMinaTvattider() {
 
         laddad = false;
-        Log.d(TAG, "TL blablabla");
-
-        //mProgressBar.show();
-
-
-        // mMinaTvattider.clear();
-        //  Log.i(TAG, "TL getMinaTvattider mMinaTvattider: " + mMinaTvattider.size());
-
+        Log.d(TAG, "TL getMinaTvattider");
         Client mClient = TvattbokningApp.getClient();
-
-//        Log.i(TAG, "" + mClient.user().isUserLoggedIn());
-
         AsyncAppData<Tvattid> myData = mClient.appData("events", Tvattid.class);
-
-
         Query q = new Query().equals("_acl.creator", mClient.user().getId());
-
         myData.get(q, new KinveyListCallback<Tvattid>() {
 
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
-
             public void onSuccess(Tvattid[] result) {
-                //  mMinaTvattider = result;
                 Log.d(TAG, "TL on Success" + result.length);
 
-                mMinaTvattider.clear();
-                mMinaTvattider.addAll(Arrays.asList(result));
+                ArrayList<Tvattid> resultList = new ArrayList<>(Arrays.asList(result));
+                int size = resultList.size();
+                Log.d(TAG, "size resultlist" + String.valueOf(size));
 
-                Log.d(TAG, "TL MT storlek: " + mMinaTvattider.size());
-                //MinaTvattiderFragment m = new MinaTvattiderFragment();
-                setMinaTvattidervattider(mMinaTvattider);
-                mProgressBar.hide();
-                laddad = true;
-
-
-//got entities created by the current user
-
+                if (size != 0) {
+                    resultList.removeIf(isBefore);
+                    mMinaTvattider.clear();
+                    mMinaTvattider.addAll(resultList);
+                    setMinaTvattider(mMinaTvattider);
+                    mProgressBar.hide();
+                    laddad = true;
+                } else {
+                    mIngaBokadeTextView.setText(R.string.inga_bokade_tider);
+                }
             }
-
 
             @Override
-
             public void onFailure(Throwable error) {
                 Log.d(TAG, "TL onFail");
-
-//something went wrong!
-
             }
-
         });
-
     }
-
 
     @Override
     public void onResume() {
@@ -131,46 +139,20 @@ public class MinaTvattiderFragment extends KinveyFragment {
         //updateUI();
     }
 
-    public void setMinaTvattidervattider(ArrayList<Tvattid> tvattider) {
-
+    public void setMinaTvattider(ArrayList<Tvattid> tvattider) {
         mTvattider = tvattider;
-        Log.i(TAG, "setTvattider" + tvattider.size());
-
     }
 
     private void updateUI() {
-
-        Log.d(TAG, "MTF updateUI");
-        // blablabla();
-
-
-        // TvattidLab tvattidLab = TvattidLab.get(getActivity());
-      /*  List<Tvattid> tvattider = tvattidLab.getMinaTvattider();
-        mTvattider =*/ //tvattidLab.getMinaTvattider();
-        //  mTvattider = new ArrayList<Tvattid>();
-      /*  ArrayList<Tvattid> tvattider = new ArrayList<Tvattid>();
-      /*  mTvattider = new ArrayList<Tvattid>();
-        DownloadMinaTvattider downloadMinaTvattider = new DownloadMinaTvattider(getContext());
-        downloadMinaTvattider.execute();*/
-
-//        Log.i(TAG, "" + mTvattider.size());
-
-
         if (laddad) {
-
             if (mTvattider.size() == 0) {
+                mIngaBokadeTextView.setText(R.string.inga_bokade_tider);
                 mIngaBokadeTextView.setVisibility(View.VISIBLE);
             }
-
-
-            Log.i(TAG, "MTF if..");
             if (mAdapter == null) {
-                //Log.i(TAG, "UpdateUI if..");
                 mAdapter = new TvattidAdapter(mTvattider);
                 mMinaTvattiderRecyclerView.setAdapter(mAdapter);
             } else {
-                Log.i(TAG, "updateUI else.." + mTvattider.size());
-
                 mAdapter.setTvattider(mTvattider);
                 mAdapter.notifyDataSetChanged();
             }
@@ -178,68 +160,63 @@ public class MinaTvattiderFragment extends KinveyFragment {
         //Detta else är för att vi måste vänta på att alla tvättider har laddats ner, annars kommer inte listan att uppdateras i appen
         else {
             final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(TAG, "MTF run" + laddad);
-                    updateUI();
-                }
+            handler.postDelayed(() -> {
+                Log.i(TAG, "MTF run" + laddad);
+                updateUI();
             }, 10);
         }
-
-
     }
 
     //ViewHolder (en inre klass), OBS!!! just nu måste itemView vara en TextView!
     private class TvattidHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private Tvattid mTvattid;
-
         private TextView mDateTextView;
+        private TextView mTimeTextView;
         private Button mAvbokaButton;
 
-        public TvattidHolder(View itemView) {
+        TvattidHolder(View itemView) {
             super(itemView);
-
-            Log.d(TAG, "MTF TvattidHolder");
+            mTimeTextView = (TextView) itemView.findViewById(R.id.list_item_mina_tvattider_time);
             mDateTextView = (TextView) itemView.findViewById(R.id.list_item_mina_tvattider_date);
-            mAvbokaButton = (Button) itemView.findViewById(R.id.list_item_avboka_button);
+            mAvbokaButton = (Button) itemView.findViewById(R.id.list_item_button);
+            mAvbokaButton.setText(R.string.button_avboka);
             mAvbokaButton.setOnClickListener(this);
         }
 
         //bindTvattid är till för att onBindViewHolder bara ska kunna anropa denna metod istället för att göra annat,
         //dvs adaptern gör inget, allt sker i Holdern
-        public void bindTvattid(Tvattid tvattid) {
-            Log.d(TAG, "MTF bindTvattid");
+        void bindTvattid(Tvattid tvattid) {
             mTvattid = tvattid;
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            mTvattid = tvattid;
+            int time = mTvattid.getTime();
+            Calendar startTime = new GregorianCalendar();
+            startTime.set(Calendar.HOUR_OF_DAY, time);
+            startTime.set(Calendar.MINUTE, 0);
+            Calendar endTime = new GregorianCalendar();
+            endTime.set(Calendar.HOUR_OF_DAY, time + 2);
+            endTime.set(Calendar.MINUTE, 0);
+            final String startTimeSelected = sdf.format(startTime.getTime());
+            final String endTimeSelected = sdf.format(endTime.getTime());
             mDateTextView.setText(mTvattid.getDate());
+            mTimeTextView.setText(startTimeSelected + "-" + endTimeSelected);
         }
 
         @Override
         public void onClick(View view) {
-
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setMessage("Vill du avboka tvättiden?");
-
-            alertDialogBuilder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface arg0, int arg1) {
-                    String eventId = mTvattid.getId();
-                    avbokaTvattid(eventId);
-                }
+            alertDialogBuilder.setPositiveButton("Ja", (arg0, arg1) -> {
+                String eventId = mTvattid.getId();
+                avbokaTvattid(eventId);
             });
 
-            alertDialogBuilder.setNegativeButton("Nej", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                }
+            alertDialogBuilder.setNegativeButton("Nej", (dialog, which) -> {
             });
 
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
-
-
         }
     }
 
@@ -248,9 +225,7 @@ public class MinaTvattiderFragment extends KinveyFragment {
         myevents.delete(eventId, new KinveyDeleteCallback() {
             @Override
             public void onSuccess(KinveyDeleteResponse response) {
-
-                Log.v(TAG, "deleted successfully");
-                blablabla();
+                getMinaTvattider();
                 updateUI();
             }
 
@@ -266,8 +241,7 @@ public class MinaTvattiderFragment extends KinveyFragment {
     private class TvattidAdapter extends RecyclerView.Adapter<TvattidHolder> {
         private List<Tvattid> mTvattider;
 
-        public TvattidAdapter(List<Tvattid> tvattider) {
-            Log.d(TAG, "MTF TvattidAdapter");
+        TvattidAdapter(List<Tvattid> tvattider) {
             mTvattider = tvattider;
         }
 
@@ -277,32 +251,25 @@ public class MinaTvattiderFragment extends KinveyFragment {
         public TvattidHolder onCreateViewHolder(ViewGroup parent, int ViewType) {
             Log.d(TAG, "MTF TvattidHolder onCreateViewHolder");
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            //Hämtar View
             View view = layoutInflater.inflate(R.layout.list_item_mina_tvattider, parent, false);
             return new TvattidHolder(view);
         }
 
         //Kopplar ViewHolders View till ett modellobjekt
-        //Position = index för tvättiden i en array
         @Override
         public void onBindViewHolder(TvattidHolder holder, int position) {
-            Log.d(TAG, "MTF onBindViewHolder");
             Tvattid tvattid = mTvattider.get(position);
             holder.bindTvattid(tvattid);
         }
 
-
-        //getItemCount måste implementeras för att klassen ska fungera
         @Override
         public int getItemCount() {
-            Log.d(TAG, "MTF getItemCount");
             return mTvattider.size();
         }
 
-        public void setTvattider(List<Tvattid> tvattider) {
+        private void setTvattider(List<Tvattid> tvattider) {
             mTvattider = tvattider;
         }
-
     }
 
 }

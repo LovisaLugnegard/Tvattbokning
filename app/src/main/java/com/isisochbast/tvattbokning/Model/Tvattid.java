@@ -10,14 +10,20 @@ import com.kinvey.java.model.KinveyMetaData;
  */
 public class Tvattid extends GenericJson {
 
-
-    private boolean mSolved;
-
-
     @Key("_id")
     private String id;
     @Key
     private String date;
+    @Key
+    private int time;
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
 
     @Key("_kmd")
     private KinveyMetaData meta; // Kinvey metadata, OPTIONAL
@@ -28,7 +34,6 @@ public class Tvattid extends GenericJson {
     public String getDate() {
         return date;
     }
-
 
     public void setDate(String newDate) {
         date = newDate;
@@ -42,10 +47,6 @@ public class Tvattid extends GenericJson {
         id = newId;
     }
 
-    public boolean isSolved() {
-        return mSolved;
-    }
-    public void setSolved(boolean solved) {
-        mSolved = solved;
+    public Tvattid() {
     }
 }
